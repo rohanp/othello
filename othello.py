@@ -1,6 +1,7 @@
 from time import sleep
 from copy import deepcopy
 import numpy as np
+import sys
 
 def setUpCanvas(root): # These are the REQUIRED magic lines to enter graphics mode.
 	root.title("A Tk/Python Graphics Program") # Your screen size may be different from 1270 x 780.
@@ -39,8 +40,7 @@ def initializePointMatrices():
 	return PW, PB
 #----------------------------------------------------------------------------------------------------Othello--
 
-def updateTheFourCorners():
-	global PW, PB
+def updateTheFourCorners(M, PW, PB):
 #---1B. Modify upper-left corner cell's values if the HUMAN has taken that corner.
 	if M[0][0] == 1:
 		PW[0][1] = -50
@@ -112,10 +112,11 @@ def updateTheFourCorners():
 		PB[7][6] = -50
 		PB[6][7] = -200
 		PB[6][6] = -50
+
+	return PW, PB
 #----------------------------------------------------------------------------------------------------Othello--
 
-def updateTheMiddleRowsAndColumns():
-	global PB, PW
+def updateTheMiddleRowsAndColumns(M, PW, PB):
 	for n in range (2, 6):
 		if M[0][n] == -1:
 			PW[1][n] =  20 # TOP    row
@@ -141,11 +142,12 @@ def updateTheMiddleRowsAndColumns():
 		if M[n][7] == 1:
 			PW[n][6] = -10 # RIGHT column
 			PB[n][6] =  20 # RIGHT column
+	return PW, PB
 #----------------------------------------------------------------------------------------------------Othello--
 
 def UpdateThePointMatrices():
-	updateTheFourCorners()
-	updateTheMiddleRowsAndColumns()
+	updateTheFourCorners(M, PW, PB)
+	updateTheMiddleRowsAndColumns(M, PW, PB)
 #----------------------------------------------------------------------------------------------------Othello--
 
 def copyMatrixToScreen():
@@ -163,7 +165,7 @@ def copyMatrixToScreen():
 	canvas.update()
 #----------------------------------------------------------------------------------------------------Othello--
 
-def copyOldBoardToScreenInMiniturizedForm(cc, rr):
+def copyOldBoardToScreenInMiniturizedForm(rr, cc):
  #--erase previous miniture board
 	canvas.create_rectangle(650, 400, 821, 567, width = 5, fill    = 'GRAY30')
 	ch = chr(9679)
@@ -178,45 +180,6 @@ def copyOldBoardToScreenInMiniturizedForm(cc, rr):
 	canvas.create_text(cc*20 + 665, rr*20 + 413, text = 'B', fill = 'BLACK', font = ('Helvetica', 9, 'bold') )
 	canvas.update()
 #----------------------------------------------------------------------------------------------------Othello--
-
-def printMatrices(): # <-- This function prints the matrices M and P to the console for debugging.
-	print('\n Matrix M')
-	print ('     0  1  2  3  4  5  6  7')
-	print ('  +--------------------------+')
-	for r in range(8):
-		print (r, '|', end = '')
-		for c in range (8):
-			if M[r][c] == 1: ch = '#'
-			if M[r][c] ==-1: ch = 'O'
-			if M[r][c] == 0: ch = '-'
-			if M[r][c] not in {-1,0,1}: ch = '?'
-			print ("%3s"%ch, end = '')
-	print ("  |")
-	print ('  +--------------------------+')
-	print ('  |human    = # = BLACK  =  1|')
-	print ('  |computer = O = WHITE  = -1|')
-	print ('  +--------------------------+')
-	print ('M[3][0] =', M[3][0])
-#   ------------------------------------------------
-	print('\n Matrix PW')
-	print ('      0    1    2    3    4    5    6    7')
-	print ('  +------------------------------------------+')
-	for r in range(8):
-		print (r, '|', end = '')
-		for c in range (8):
-			print ("%5d"%PW[r][c], end = '')
-		print ("  |")
-	print ('  +------------------------------------------+')
-#   ------------------------------------------------
-	print('\n Matrix PB')
-	print ('      0    1    2    3    4    5    6    7')
-	print ('  +------------------------------------------+')
-	for r in range(8):
-		print (r, '|', end = '')
-		for c in range (8):
-			print ("%5d"%PB[r][c], end = '')
-		print ("  |")
-	print ('  +------------------------------------------+')
 #----------------------------------------------------------------------------------------------------Othello--
 
 def LocateTurnedPieces(r, c, player, M): # The pieces turned over are of -player's color. A zero in a
@@ -357,7 +320,7 @@ wins.\n5) A legal move MUST cause some pieces to turn color."
 	copyMatrixToScreen()
 
  #--Place score on screen
-	(BLACK, WHITE) = score()
+	(BLACK, WHITE) = score(M)
 	stng = 'BLACK = ' + str(BLACK) + '\nWHITE  = ' + str(WHITE)
 	canvas.create_text(800, 200, text = stng, fill = 'WHITE',  font = ('Helvetica', 20, 'bold'))
 	stng = "Suggested reply (col, row): (c, 4)"
@@ -413,15 +376,15 @@ def legalMove(player): # Check to see if any pieces will be turned over.
 	return True
 #----------------------------------------------------------------------------------------------------Othello--
 
-def score(): # returns the number of black disks and white disks.
-    whiteTotal = 0; blackTotal = 0
-    for r in range(8):
-      for c in range (8):
-        if M[r][c] ==  1: blackTotal += 1
-        if M[r][c] == -1: whiteTotal += 1
-    return (blackTotal, whiteTotal)
+def score(M): # returns the number of black disks and white disks.
+	whiteTotal = 0; blackTotal = 0
+	for r in range(8):
+		for c in range (8):
+			if M[r][c] ==  1: blackTotal += 1
+			if M[r][c] == -1: whiteTotal += 1
+	return (blackTotal, whiteTotal)
 
-def makeMove(c, r, pieces, player):
+def makeMove(r, c, pieces, player):
 	if player not in [1, -1]: exit('ERROR: BAD PLAYER'+ str(player))
  #--make the player's legal move in matrix
 	M[r][c] = player
@@ -437,7 +400,7 @@ def makeMove(c, r, pieces, player):
 	canvas.create_rectangle(650, 160, 960, 310, width = 5, fill = 'GRAY30')
 
  #--print new score
-	(BLACK, WHITE) = score()
+	(BLACK, WHITE) = score(M)
 	stng = 'BLACK = ' + str(BLACK) + '\nWHITE  = ' + str(WHITE)
 	canvas.create_text(800, 200, text = stng, \
 						 fill = 'WHITE',  font = ('Helvetica', 20, 'bold'))
@@ -475,8 +438,6 @@ def pointsGained(player, r,c, pieces):
 #----------------------------------------------------------------------------------------------------Othello--
 
 def computerGame():
-
-
  #--Make human move(s) and computer reply/replies.
 	copyOldBoardToScreenInMiniturizedForm(c,r)
 	move=minimax()
@@ -498,48 +459,74 @@ def computerGame():
 def makeComputerReply():
 	UpdateThePointMatrices()
 	move=minimax(COMPUTER)
-	print("move= ", move)
-	makeMove(move[1], move[0], move[2], COMPUTER)
+	makeMove(move[0], move[1], move[2], COMPUTER)
+	displayAllLegalMovesForHumanPlayer('BLUE')
 
 #   printBestPotentialReply(COMPUTER) # <--Optional feature
 
 def minimax(player):
-	if player==COMPUTER:
-		return maxMove(M,0)
-	else:
-		return minMove(M,0)
-
-def maxMove(board, depth):
-	print("COMPUTER", depth)
-	moves=getMoves(COMPUTER,board)
-	scores=np.zeros(len(moves))
+	moves=getMoves(player, M)
+	scores = np.zeros(len(moves))
+	alpha = float("-inf")
+	beta = float("inf")
 
 	for i, move in enumerate(moves):
-		print(move, '\n', board)
-		boardCopy = fakeMove(move[0], move[1], move[2], COMPUTER, np.copy(board))
-		if depth>1:
-			scores[i] = boardScore(boardCopy)
-		else:
-			scores[i] = minMove(boardCopy, depth+1)[0]
+		boardCopy = fakeMove(move[0], move[1], move[2], COMPUTER, np.copy(M))
+		scores[i]=maxMove(boardCopy, 1, alpha, beta, PW, PB)
 
 	maxIndex=np.argmax(scores)
 	return moves[maxIndex]
 
-def minMove(board, depth):
-	print("HUMAN", depth)
+def maxMove(board, depth, alpha, beta, PW, PB):
+	moves=getMoves(COMPUTER,board)
+	scores=np.zeros(len(moves))
+
+	if len(moves)==0:
+		if depth<=MAXDEPTH:
+			return minMove(board, depth+1, alpha, beta, PW, PB)
+		else: return boardScore(board, PW, PB)
+
+	for i, move in enumerate(moves):
+		boardCopy = fakeMove(move[0], move[1], move[2], COMPUTER, np.copy(board))
+		PW, PB = updateTheFourCorners(boardCopy, PW, PB)
+		PW, PB = updateTheMiddleRowsAndColumns(boardCopy, PW, PB)
+		if depth>=MAXDEPTH:
+			scores[i] = boardScore2(boardCopy, PW, PB)
+
+		else:
+			scores[i] = minMove(boardCopy, depth+1, alpha, beta, PW, PB)
+			if scores[i] > alpha:
+				alpha = scores[i]
+			if beta <= alpha:
+				#print("PRUNED")
+				return scores[i]
+
+	return max(scores)
+
+def minMove(board, depth, alpha, beta, PW, PB):
 	moves=getMoves(HUMAN,board)
 	scores=np.zeros(len(moves))
 
-	for i, move in enumerate(moves):
-		print(move, '\n', board)
-		boardCopy = fakeMove(move[0], move[1], move[2], HUMAN, np.copy(board))
-		if depth>1:
-			scores[i] = boardScore(boardCopy)
-		else:
-			scores[i] = maxMove(boardCopy, depth+1)[0] #score
+	if len(moves)==0:
+		if depth<=MAXDEPTH:
+			return maxMove(board, depth+1, alpha, beta, PW, PB)
+		else: return boardScore(board, PW, PB)
 
-	minIndex=np.argmax(scores)
-	return moves[minIndex]
+	for i, move in enumerate(moves):
+		boardCopy = fakeMove(move[0], move[1], move[2], HUMAN, np.copy(board))
+		PW, PB = updateTheFourCorners(boardCopy, np.copy(PW), np.copy(PB))
+		PW, PB = updateTheMiddleRowsAndColumns(boardCopy, PW, PB)
+		if depth>=MAXDEPTH:
+			scores[i] = boardScore2(boardCopy, PW, PB)
+		else:
+			scores[i] = maxMove(boardCopy, depth+1, alpha, beta, PW, PB)
+			if beta > scores[i]:
+				beta = scores[i]
+			if beta <= alpha:
+				#print("PRUNED")
+				return scores[i]
+
+	return min(scores)
 
 def getMoves(player, M):
 	moves=[]
@@ -551,61 +538,43 @@ def getMoves(player, M):
 					moves.append((r,c,piecesTurned))
 	return moves
 
-def boardScore(M): # The higher the boardScore, the better for the COMPUTER.
+def boardScore(M, PW, PB): # The higher the boardScore, the better for the COMPUTER.
 	computerTotal = 0
 	humanTotal    = 0
+
 	for r in range(0, 8):
 		for c in range(0, 8):
 			if M[r][c] == COMPUTER:
 				computerTotal += PW[r][c]
 			if M[r][c] == HUMAN:
 				humanTotal += PB[r][c]
-	return computerTotal - humanTotal
+	return  computerTotal - humanTotal
+
+def boardScore2(M, PW, PB):
+	computerTotal=sum([[PW[r][c] if M[r][c] is COMPUTER else PB[r][c] for c in range(0,8)]  for r in range(0,8)])
 
 def fakeMove(r, c, piecesTurnedOver, player, M):
 #---Double check that our move is made to an empty cell.
-    assert M[r][c] == 0, ['player =', str(player)]
+	assert M[r][c] == 0, ['player =', str(player)]
 
 #---Make the move
-    M[r][c] = player
+	M[r][c] = player
 
 #---Double check that the pieces we are turning over are of the opposite color of our player.
-    piecesAreOppositeColorOfPlayer = True
-    for (r,c) in piecesTurnedOver:
-        if M[r][c] == player:
-           piecesAreOppositeColorOfPlayer = False
+	piecesAreOppositeColorOfPlayer = True
+	for (r,c) in piecesTurnedOver:
+		if M[r][c] == player:
+		   piecesAreOppositeColorOfPlayer = False
 
-    if(piecesAreOppositeColorOfPlayer==False):
-    	print("\n\n")
-    	print(M,r,c,piecesTurnedOver)
-    assert piecesAreOppositeColorOfPlayer == True
+	if(piecesAreOppositeColorOfPlayer==False):
+		print("\n\n")
+		print(M,r,c,piecesTurnedOver)
+	assert piecesAreOppositeColorOfPlayer == True
 
 #---Turn the pieces over.
-    for (r,c) in piecesTurnedOver:
-        M[r][c] = player
-
-    return M
-#----------------------------------------------------------------------------------------------------Othello--
-
-def takeBackTheMoveAndTurnBackOverThePieces(r, c, piecesTurnedOver, player):
-    global M
-#---Double check that we are turning back a piece with the same color as player.
-    assert M[r][c] == player, ['player =', str(player), 'M[r][c] =', M[r][c], '(r,c) =', (r,c)]
-
-#---Take the move back.
-    M[r][c] = 0
-
-#---Double check that the pieces we are turning over are of the same color of our player.
-    piecesAreSameColorAsPlayer = True
-    for (r,c) in piecesTurnedOver:
-        if M[r][c] != player:
-           piecesAreSameColorAsPlayer = False
-    assert piecesAreSameColorAsPlayer == True
-
-#---Turn the pieces back over.
-    for (r,c) in piecesTurnedOver:
-        M[r][c] = -player
-
+	for (r,c) in piecesTurnedOver:
+		M[r][c] = player
+	return M
 #----------------------------------------------------------------------------------------------------Othello--
 
 def displayAllLegalMovesForHumanPlayer(kolor):
@@ -624,8 +593,6 @@ def displayAllLegalMovesForHumanPlayer(kolor):
 
 def click(evt): # A legal move is guaranteed to exist.
 	displayAllLegalMovesForHumanPlayer('BLUE')
-
-	printMatrices()
 
  #--If move is off board, or cell full, or no opp. neighbor, then CLICK AGAIN.
 	if illegalClick(evt.x, evt.y):
@@ -648,7 +615,7 @@ def click(evt): # A legal move is guaranteed to exist.
 
  #--Make human move(s) and computer reply/replies.
 	copyOldBoardToScreenInMiniturizedForm(c,r)
-	makeMove(c, r, pieces, HUMAN)
+	makeMove(r, c, pieces, HUMAN)
 	canvas.create_rectangle(655, 330, 870,370, width = 0, fill = 'grey30')
 	if legalMove(HUMAN) and not legalMove(COMPUTER): return
 
@@ -684,8 +651,6 @@ def bestHumanResponse():
 				 finalPieces = pieces
 	return maxTotal, bestRow, bestCol
 
-
-
 #===================================<GLOBAL CONSTANTS and GLOBAL IMPORTS>=====================================
 
 # Global Variables should be avoided. But in Python's Tk graphics this is impossible.
@@ -697,6 +662,7 @@ M        =  createMatrix() # <-- No variable can be passed to the click function
 HUMAN    =  1 # = Black
 COMPUTER = -1 # = White
 GLOBAL   = True
+MAXDEPTH = int(sys.argv[1])
 #====================================================<MAIN>===================================================
 
 def main():
