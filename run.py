@@ -1,0 +1,3 @@
+import othello
+
+othello.main()
