@@ -50,7 +50,7 @@ cdef maxMove(DTYPE_t[:,:] board, depth, alpha, beta, DTYPE_t[:,:] PW, DTYPE_t[:,
 	if len(moves)==0:
 		if depth<MAXDEPTH:
 			return minMove(board, depth+1, alpha, beta, PW, PB, MAXDEPTH)
-		else: return boardScore(board)
+		else: return boardScore(board, PW, PB)
 
 	for i, move in enumerate(moves):
 		boardCopy=board.copy()
@@ -84,7 +84,7 @@ cdef minMove(DTYPE_t[:,:] board, int depth, float alpha, float beta, DTYPE_t[:,:
 	if moves.shape[0]==0:
 		if depth<MAXDEPTH:
 			return maxMove(board, depth+1, alpha, beta, PW, PB, MAXDEPTH)
-		else: return boardScore(board)
+		else: return boardScore(board, PW , PB)
 
 	for i, move in enumerate(moves_view):
 		boardCopy=board.copy()
@@ -100,9 +100,11 @@ cdef minMove(DTYPE_t[:,:] board, int depth, float alpha, float beta, DTYPE_t[:,:
 
 	return min(scores)
 
-def boardScore(M, PW, PB): # The higher the boardScore, the better for the COMPUTER.
+cdef boardScore(DTYPE_t[:,:] M, DTYPE_t[:,:] PW, DTYPE_t[:,:] PB): # The higher the boardScore, the better for the COMPUTER.
+	cdef int r,c,computerTotal,humanTotal
 	computerTotal = 0
 	humanTotal    = 0
+
 	for r in range(0, 8):
 		for c in range(0, 8):
 			if M[r][c] == COMPUTER:

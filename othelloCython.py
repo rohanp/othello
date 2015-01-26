@@ -388,6 +388,7 @@ def score(M): # returns the number of black disks and white disks.
     return (blackTotal, whiteTotal)
 
 def makeMove(r, c, pieces, player):
+	print("player ", player, " made move at ",r,c)
 	if player not in [1, -1]: exit('ERROR: BAD PLAYER'+ str(player))
  #--make the player's legal move in matrix
 	M[r][c] = player
@@ -529,7 +530,7 @@ def displayAllLegalMovesForHumanPlayer(kolor):
 
 			if M[r][c] == 0 and total != 0:
 				canvas.create_oval(sx-25,sy-25, sx+25, sy+25, fill = 'DARKGREEN', outline='DARKGREEN')
-				canvas.create_text( sx, sy, text = str(total), fill = kolor, font = ('Helvetica', 20, 'bold') )
+				canvas.create_text( sx, sy, text = str(total), fill = kolor, font = ('Helvetica', 24, 'bold') )
 #----------------------------------------------------------------------------------------------------Othello--
 
 def click(evt): # A legal move is guaranteed to exist.

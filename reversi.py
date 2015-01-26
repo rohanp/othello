@@ -24,9 +24,7 @@ def bracket( board , player , square ) :
    #
 #
 def would_bracket( board , player , square ) :
-   #
    opp = opponent_color( player )
-   #
    for d in directions :
       k = square + d
       if board[k] != opp :
@@ -35,8 +33,7 @@ def would_bracket( board , player , square ) :
          k = k + d
       if board[k] == player :
          return True
-      #
-   #
+
    return False
 #
 def get_legal_moves(board, player) :

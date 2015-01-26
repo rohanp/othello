@@ -1,4 +1,3 @@
-from time import sleep
 from copy import deepcopy
 import numpy as np
 import sys
@@ -491,7 +490,7 @@ def maxMove(board, depth, alpha, beta, PW, PB):
 		PW, PB = updateTheFourCorners(boardCopy, PW, PB)
 		PW, PB = updateTheMiddleRowsAndColumns(boardCopy, PW, PB)
 		if depth>=MAXDEPTH:
-			scores[i] = boardScore2(boardCopy, PW, PB)
+			scores[i] = boardScore(boardCopy, PW, PB)
 
 		else:
 			scores[i] = minMove(boardCopy, depth+1, alpha, beta, PW, PB)
@@ -517,7 +516,7 @@ def minMove(board, depth, alpha, beta, PW, PB):
 		PW, PB = updateTheFourCorners(boardCopy, np.copy(PW), np.copy(PB))
 		PW, PB = updateTheMiddleRowsAndColumns(boardCopy, PW, PB)
 		if depth>=MAXDEPTH:
-			scores[i] = boardScore2(boardCopy, PW, PB)
+			scores[i] = boardScore(boardCopy, PW, PB)
 		else:
 			scores[i] = maxMove(boardCopy, depth+1, alpha, beta, PW, PB)
 			if beta > scores[i]:

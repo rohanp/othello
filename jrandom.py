@@ -17,6 +17,10 @@ def pick( board , player ) :
    sleep( 0.25 * random() )
    #
    return choice( poss )
+
+def monteCarlo(board, player):
+
+
 #
 # end of file
 #
