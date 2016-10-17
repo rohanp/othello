@@ -5,9 +5,10 @@ import sys
 
 import minimax
 
+# python othelloCython.py <search depth>
 
 def setUpCanvas(root): # These are the REQUIRED magic lines to enter graphics mode.
-	root.title("A Tk/Python Graphics Program") # Your screen size may be different from 1270 x 780.
+	root.title("Othello Cython") # Your screen size may be different from 1270 x 780.
 	canvas = Canvas(root, width = 1270, height = 780, bg = 'GREY30')
 	canvas.pack(expand = YES, fill = BOTH)
 	return canvas
@@ -171,7 +172,7 @@ def copyMatrixToScreen():
 def copyOldBoardToScreenInMiniturizedForm(rr, cc):
  #--erase previous miniture board
 	canvas.create_rectangle(650, 400, 821, 567, width = 5, fill    = 'GRAY30')
-	ch = unichr(9679)
+	ch = chr(9679)
 	for r in range (8):
 		for c in range (8):
 			sx = c*20 + 665
@@ -283,7 +284,7 @@ def LocateTurnedPieces(r, c, player, M): # The pieces turned over are of -player
 #----------------------------------------------------------------------------------------------------Othello--
 
 def setUpInitialBoard(canvas):
-	global M; ch = unichr(9679)
+	global M; ch = chr(9679)
 
  #--print title
 	canvas.create_text(330, 50, text = "OTHELLO with AI", \
@@ -380,12 +381,12 @@ def legalMove(player): # Check to see if any pieces will be turned over.
 #----------------------------------------------------------------------------------------------------Othello--
 
 def score(M): # returns the number of black disks and white disks.
-    whiteTotal = 0; blackTotal = 0
-    for r in range(8):
-      for c in range (8):
-        if M[r][c] ==  1: blackTotal += 1
-        if M[r][c] == -1: whiteTotal += 1
-    return (blackTotal, whiteTotal)
+	whiteTotal = 0; blackTotal = 0
+	for r in range(8):
+		for c in range (8):
+			if M[r][c] ==  1: blackTotal += 1
+			if M[r][c] == -1: whiteTotal += 1
+	return (blackTotal, whiteTotal)
 
 def makeMove(r, c, pieces, player):
 	print("player ", player, " made move at ",r,c)
@@ -493,30 +494,30 @@ def boardScore(M): # The higher the boardScore, the better for the COMPUTER.
 
 def fakeMove(r, c, piecesTurnedOver, player, M, PW, PB):
 #---Double check that our move is made to an empty cell.
-    assert M[r][c] == 0, ['player =', str(player)]
+	assert M[r][c] == 0, ['player =', str(player)]
 
 #---Make the move
-    M[r][c] = player
+	M[r][c] = player
 
 #---Double check that the pieces we are turning over are of the opposite color of our player.
-    piecesAreOppositeColorOfPlayer = True
-    for (r,c) in piecesTurnedOver:
-        if M[r][c] == player:
-           piecesAreOppositeColorOfPlayer = False
+	piecesAreOppositeColorOfPlayer = True
+	for (r,c) in piecesTurnedOver:
+		if M[r][c] == player:
+		   piecesAreOppositeColorOfPlayer = False
 
-    if(piecesAreOppositeColorOfPlayer==False):
-    	print("\n\n")
-    	print(M,r,c,piecesTurnedOver)
-    assert piecesAreOppositeColorOfPlayer == True
+	if(piecesAreOppositeColorOfPlayer==False):
+		print("\n\n")
+		print(M,r,c,piecesTurnedOver)
+	assert piecesAreOppositeColorOfPlayer == True
 
 #---Turn the pieces over.
-    for (r,c) in piecesTurnedOver:
-        M[r][c] = player
+	for (r,c) in piecesTurnedOver:
+		M[r][c] = player
 
 	PW, PB = updateTheFourCorners(PW, PB)
 	PW, PB = updateTheMiddleRowsAndColumns(PW, PB)
 
-    return M, PW, PB
+	return M, PW, PB
 #----------------------------------------------------------------------------------------------------Othello--
 
 def displayAllLegalMovesForHumanPlayer(kolor):
@@ -596,7 +597,7 @@ def bestHumanResponse():
 #===================================<GLOBAL CONSTANTS and GLOBAL IMPORTS>=====================================
 
 # Global Variables should be avoided. But in Python's Tk graphics this is impossible.
-from Tkinter  import *   # <-- Use Tkinter in Python 2.x
+from tkinter  import *   # <-- Use Tkinter in Python 2.x
 root     =  Tk()
 canvas   =  setUpCanvas(root)
 PW, PB   =  initializePointMatrices()
@@ -604,7 +605,7 @@ M        =  createMatrix() # <-- No variable can be passed to the click function
 HUMAN    =  1 # = Black
 COMPUTER = -1 # = White
 GLOBAL   = True
-MAXDEPTH = 6
+MAXDEPTH = int(sys.argv[1])
 #====================================================<MAIN>===================================================
 
 def main():
